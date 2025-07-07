@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A customizable kinklist generator to explore preferences and share results.">
+    <meta name="author" content="Anonymous">
+    <title>Kinklist Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            text-align: center;
+        }
+        .choices {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .choice {
+            padding: 10px;
+            border: 1px solid #000;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            width: 100px;
+            min-width: 80px;
+        }
+        .choice.not-entered { background-color: #ffffff; }
+        .choice.favorite { background-color: #6666ff; }
+        .choice.like { background-color: #66ff66; }
+        .choice.maybe { background-color: #ff9966; }
+        .choice.limit { background-color: #ffff66; }
+        .choice.no { background-color: #ff6666; }
+        .item-buttons .not-entered { background-color: #ffffff; }
+        .item-buttons .favorite { background-color: #d9d9ff; }
+        .item-buttons .like { background-color: #d9ffd9; }
+        .item-buttons .maybe { background-color: #ffe6cc; }
+        .item-buttons .limit { background-color: #ffffd9; }
+        .item-buttons .no { background-color: #ffd9d9; }
+        .selected {
+            border: 2px solid #000;
+        }
+        .selected.favorite { background-color: #6666ff; }
+        .selected.like { background-color: #66ff66; }
+        .selected.maybe { background-color: #ff9966; }
+        .selected.limit { background-color: #ffff66; }
+        .selected.no { background-color: #ff6666; }
+        .category {
+            margin: 20px 0 10px;
+            padding: 10px;
+            background-color: #d3d3d3;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            color: #000;
+        }
+        .item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        .item-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .item-buttons button {
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            width: 15%;
+            min-width: 60px;
+        }
+        #finish {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #finish:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #results {
+            display: none;
+        }
+        #results h2 {
+            text-align: center;
+        }
+        .result-item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .result-item.favorite { background-color: #6666ff; }
+        .result-item.like { background-color: #66ff66; }
+        .result-item.maybe { background-color: #ff9966; }
+        .result-item.limit { background-color: #ffff66; }
+        .result-item.no { background-color: #ff6666; }
+        .result-item.not-entered { background-color: #ffffff; }
+        @media (max-width: 600px) {
+            .choices, .item-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .choice, .item-buttons button {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Kinklist Generator</h1>
+    <div class="choices" role="radiogroup" aria-label="Preference choices">
+        <div class="choice not-entered" role="radio" aria-checked="false">Not Entered</div>
+        <div class="choice favorite" role="radio" aria-checked="false">Favorite</div>
+        <div class="choice like" role="radio" aria-checked="false">Like</div>
+        <div class="choice maybe" role="radio" aria-checked="false">Maybe</div>
+        <div class="choice limit" role="radio" aria-checked="false">Limit</div>
+        <div class="choice no" role="radio" aria-checked="false">No</div>
+    </div>
+    <div id="kinklist" role="list"></div>
+    <button id="finish" disabled>Finish</button>
+    <div id="results">
+        <h2>Your Kinklist Results</h2>
+        <p style="text-align: center;">Please take a screenshot of your results.</p>
+        <div id="results-list" role="list"></div>
+    </div>
+
+    <script>
+        const categories = [
+            {
+                name: "Penis Size",
+                items: [
+                    { name: "Cucks current size" },
+                    { name: "Bulls current size" },
+                    { name: "1-2”" },
+                    { name: "3-4”" },
+                    { name: "5-6”" },
+                    { name: "7-8”" },
+                    { name: "9-10”" },
+                    { name: "11”+" },
+                    { name: "Thin" },
+                    { name: "Average" },
+                    { name: "Thick" },
+                    { name: "Very thick" }
+                ]
+            },
+            {
+                name: "Arrangements",
+                items: [
+                    { name: "Sleep with 1-2 new bulls only" },
+                    { name: "Sleep with the same 1-2 bulls repeatedly" },
+                    { name: "Long term sexual relationship with 1-2 bulls" },
+                    { name: "Sleep with several bulls at the same time" },
+                    { name: "Boyfriend/girlfriend relationship with bull(s)" },
+                    { name: "Hookup with cucks friends" },
+                    { name: "Single night meetups" },
+                    { name: "Day long meetups" },
+                    { name: "Multiple day and night meetups" },
+                    { name: "Week long meetups" },
+                    { name: "Hanging out for a day before sex" },
+                    { name: "Meeting up only for sex" },
+                    { name: "Free use for bull" },
+                    { name: "BDSM relationship with bull" }
+                ]
+            },
+            {
+                name: "Hotwife/Bull Relationship Kinks",
+                items: [
+                    { name: "Pussy “owned” by bull" },
+                    { name: "Ass “owned” by bull" },
+                    { name: "Mouth “owned” by bull" },
+                    { name: "Vaginal sex with bull" },
+                    { name: "Anal sex with bull" },
+                    { name: "Blow jobs with bull" },
+                    { name: "Sub for bull" },
+                    { name: "Dom for bull" },
+                    { name: "Giving up all control to bull" },
+                    { name: "Spit" },
+                    { name: "Dildos" },
+                    { name: "Daddy/baby girl" }
+                ]
+            },
+            {
+                name: "Hotwife/Cuck Relationship",
+                items: [
+                    { name: "Pussy “owned” by cuck" },
+                    { name: "Ass “owned” by cuck" },
+                    { name: "Mouth “owned” by cuck" },
+                    { name: "Vaginal sex with cuck" },
+                    { name: "Anal sex with cuck" },
+                    { name: "Blow jobs with cuck" },
+                    { name: "Clean up after meeting with bull" },
+                    { name: "Reverse pegging cuck" },
+                    { name: "Penis sleeves" },
+                    { name: "Dildos" },
+                    { name: "Chastity" },
+                    { name: "Spit" },
+                    { name: "Pegging" },
+                    { name: "Controlling cucks masturbation" },
+                    { name: "Ruined orgasms" },
+                    { name: "Cum blocking" },
+                    { name: "Edging" },
+                    { name: "Orgasm denial during meetups" },
+                    { name: "Complete orgasm denial" },
+                    { name: "Pussy denial" },
+                    { name: "Pussy free" },
+                    { name: "Sub for cuck" },
+                    { name: "Dom for cuck" },
+                    { name: "Sending private meetup videos to cuck" },
+                    { name: "Filming/uploading bull/hotwife porn" },
+                    { name: "Daddy/baby girl" }
+                ]
+            },
+            {
+                name: "Humiliation",
+                items: [
+                    { name: "Cuck chair" },
+                    { name: "Cuck records encounter" },
+                    { name: "Cuck in another room" },
+                    { name: "Cuck not present" },
+                    { name: "Bull telling cuck what to do" },
+                    { name: "Small penis humiliation" },
+                    { name: "Inducing jealousy in cuck" },
+                    { name: "Committing to bull more sexually" },
+                    { name: "Committing to cuck more sexually" },
+                    { name: "Cuck wears hotwife’s undies/clothes" },
+                    { name: "Feminization" },
+                    { name: "Femdom" },
+                    { name: "Teasing cuck while in public with bull" }
+                ]
+            },
+            {
+                name: "Bull Access/Use",
+                items: [
+                    { name: "Free use/any time (even if not in the mood)" },
+                    { name: "Week long sex vacation with just bull" },
+                    { name: "Week long sex vacation with bull and cuck" },
+                    { name: "Every day" },
+                    { name: "Every week" },
+                    { name: "Twice per month" },
+                    { name: "Once per month" },
+                    { name: "1-2 times yearly" },
+                    { name: "Private meetups with bull" },
+                    { name: "Meetups with bull and cuck" },
+                    { name: "Anal just for bull" },
+                    { name: "Pussy just for bull" },
+                    { name: "Mouth just for bull" },
+                    { name: "Will do stuff for bull but not for hubby" },
+                    { name: "Lingerie for bull" },
+                    { name: "Creampies from bull or anywhere" }
+                ]
+            },
+            {
+                name: "Cuck Access/Denial",
+                items: [
+                    { name: "Sex any time he wants" },
+                    { name: "Sex sometimes" },
+                    { name: "Sex at my discretion" },
+                    { name: "Sex at bulls discretion" },
+                    { name: "Sex rarely" },
+                    { name: "Pussy free" },
+                    { name: "Sloppy seconds" },
+                    { name: "Hand jobs (or similar) only" },
+                    { name: "Foot jobs (or similar) only" },
+                    { name: "Blow jobs (or similar) only" },
+                    { name: "Thigh fucking (or similar) only" },
+                    { name: "Self masturbation only" },
+                    { name: "Chastity" },
+                    { name: "Lingerie for cuck" },
+                    { name: "Sexting/nudes for bull but not for cuck" },
+                    { name: "Creampies from cuck" },
+                    { name: "Cuck “wastes” cum (floor/toilet/hand) while bull cums on or in you" }
+                ]
+            }
+        ];
+
+        const items = categories.flatMap(category => 
+            category.items.map(item => ({ category: category.name, name: item.name }))
+        );
+
+        const choices = ['not-entered', 'favorite', 'like', 'maybe', 'limit', 'no'];
+        const kinklistDiv = document.getElementById('kinklist');
+        const finishButton = document.getElementById('finish');
+        const resultsDiv = document.getElementById('results');
+        const resultsList = document.getElementById('results-list');
+        const selections = {};
+
+        function renderList() {
+            try {
+                kinklistDiv.innerHTML = '';
+                categories.forEach(category => {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'category';
+                    categoryDiv.textContent = category.name;
+                    categoryDiv.setAttribute('role', 'listitem');
+                    kinklistDiv.appendChild(categoryDiv);
+
+                    category.items.forEach((item) => {
+                        const globalIndex = items.findIndex(i => i.category === category.name && i.name === item.name);
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'item';
+                        itemDiv.setAttribute('role', 'listitem');
+                        itemDiv.innerHTML = `${item.name}`;
+                        const buttonsDiv = document.createElement('div');
+                        buttonsDiv.className = 'item-buttons';
+                        buttonsDiv.setAttribute('role', 'radiogroup');
+                        buttonsDiv.setAttribute('aria-label', `Choices for ${item.name}`);
+                        choices.forEach(choice => {
+                            const button = document.createElement('button');
+                            button.className = choice;
+                            button.textContent = choice.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                            button.setAttribute('role', 'radio');
+                            button.setAttribute('aria-checked', selections[globalIndex] === choice ? 'true' : 'false');
+                            button.onclick = () => selectChoice(globalIndex, choice);
+                            if (selections[globalIndex] === choice) {
+                                button.classList.add('selected');
+                            }
+                            buttonsDiv.appendChild(button);
+                        });
+                        itemDiv.appendChild(buttonsDiv);
+                        kinklistDiv.appendChild(itemDiv);
+                    });
+                });
+                checkAllSelected();
+            } catch (error) {
+                console.error('Error rendering list:', error);
+                kinklistDiv.innerHTML = '<p>Error loading kinklist. Please try again.</p>';
+            }
+        }
+
+        function selectChoice(itemIndex, choice) {
+            try {
+                selections[itemIndex] = choice;
+                renderList();
+            } catch (error) {
+                console.error('Error selecting choice:', error);
+            }
+        }
+
+        function checkAllSelected() {
+            try {
+                const allSelected = items.every((_, index) => selections[index] !== undefined);
+                finishButton.disabled = !allSelected;
+            } catch (error) {
+                console.error('Error checking selections:', error);
+                finishButton.disabled = true;
+            }
+        }
+
+        function showResults() {
+            try {
+                kinklistDiv.style.display = 'none';
+                finishButton.style.display = 'none';
+                resultsDiv.style.display = 'block';
+                resultsList.innerHTML = '';
+                categories.forEach(category => {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'category';
+                    categoryDiv.textContent = category.name;
+                    categoryDiv.setAttribute('role', 'listitem');
+                    resultsList.appendChild(categoryDiv);
+
+                    category.items.forEach((item) => {
+                        const globalIndex = items.findIndex(i => i.category === category.name && i.name === item.name);
+                        const choice = selections[globalIndex] || 'not-entered';
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = `result-item ${choice}`;
+                        resultDiv.setAttribute('role', 'listitem');
+                        resultDiv.innerHTML = `${item.name} - ${choice.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`;
+                        resultsList.appendChild(resultDiv);
+                    });
+                });
+            } catch (error) {
+                console.error('Error showing results:', error);
+                resultsList.innerHTML = '<p>Error displaying results. Please try again.</p>';
+            }
+        }
+
+        finishButton.onclick = showResults;
+
+        try {
+            renderList();
+        } catch (error) {
+            console.error('Initial render failed:', error);
+            kinklistDiv.innerHTML = '<p>Error initializing kinklist. Please refresh the page.</p>';
+        }
+    </script>
+</body>
+</html>
